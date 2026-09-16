@@ -289,29 +289,10 @@ The deployment process was:
 
 ---
 
-## 16. Troubleshooting Summary
+## 16. Troubleshooting
 
-### Issue 1: ECS Tasks Could Not Retrieve the Secret
+Detailed troubleshooting issues, causes, and resolutions are documented separately in TROUBLESHOOTING.md.
 
-Initially, ECS tasks failed because the private task networking did not have the required outbound connectivity to reach AWS Secrets Manager.
-
-**Resolution:** A NAT Gateway and private-subnet routing were configured.
-
-### Issue 2: Secrets Manager Access Denied
-
-The ECS task execution role initially did not have permission to retrieve the required secret.
-
-**Resolution:** A least-privilege IAM permission for `secretsmanager:GetSecretValue` was added for the required secret.
-
-### Issue 3: ALB Health Checks Failed
-
-The ALB was initially associated with the incorrect security group.
-
-**Resolution:** The ALB security group was corrected so that the ALB could receive HTTP traffic on port 80, while the ECS task security group allowed port 3000 only from the ALB security group.
-
-After the correction, both ECS targets became healthy and the application was successfully accessible through the ALB.
-
----
 
 ## 17. Security Considerations
 
