@@ -7,7 +7,7 @@ function App() {
       <header className="App-header">
         <img src={logo} className="App-logo" alt="logo" />
         <p>
-          This is a WebApp project for Docker2!!!!
+          This is a Demo project for Docker!!!!
         </p>
         <a
           className="App-link"
