@@ -10,7 +10,7 @@ The deployment was designed with multiple Availability Zones, private ECS task s
 
 ---
 
-## ## 2. Architecture Overview
+## 2. Architecture Overview
 
 The application architecture consists of:
 
