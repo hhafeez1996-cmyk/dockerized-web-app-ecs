@@ -10,11 +10,75 @@ The deployment was designed with multiple Availability Zones, private ECS task s
 
 ---
 
-## 2. Architecture Overview
+## ## 2. Architecture Overview
 
 The application architecture consists of:
 
-**Internet → Application Load Balancer → ECS Fargate Tasks → Containerized React Application**
+**Internet → Application Load Balancer → Target Group → ECS Service → ECS Fargate Tasks → Containerized React Application**
+
+```text
+                         Internet / User
+                                │
+                                │ HTTP :80
+                                ▼
+                    ┌─────────────────────────┐
+                    │ Application Load         │
+                    │ Balancer (myweb-ALB)     │
+                    │ Public Subnets           │
+                    └────────────┬────────────┘
+                                 │
+                                 ▼
+                    ┌─────────────────────────┐
+                    │ Target Group (myweb-tg)  │
+                    │ Health Check: /          │
+                    │ Port: 3000               │
+                    └────────────┬────────────┘
+                                 │
+                         ECS Service
+                      Desired Count = 2
+                                 │
+                    ┌────────────┴────────────┐
+                    │                         │
+                    ▼                         ▼
+          ┌──────────────────┐      ┌──────────────────┐
+          │ Fargate Task 1   │      │ Fargate Task 2   │
+          │ Private Subnet   │      │ Private Subnet   │
+          │ eu-north-1a      │      │ eu-north-1b      │
+          │ Port 3000        │      │ Port 3000        │
+          └──────────────────┘      └──────────────────┘
+                    │                         │
+                    └────────────┬────────────┘
+                                 │
+                                 ▼
+                    Containerized React App
+
+
+Supporting AWS Services
+────────────────────────────────────────────────────
+
+ Amazon ECR ──────────────► ECS Fargate Tasks
+   myweb:latest               Docker Image
+
+ Secrets Manager ─────────► ECS Task Execution Role
+   myweb/app-secret           IAM
+
+ ECS Fargate Tasks ───────► CloudWatch Logs
+
+ Private Subnets
+       │
+       ▼
+ Private Route Table
+       │
+       ▼
+ NAT Gateway
+       │
+       ▼
+ Outbound Internet Connectivity
+```
+
+The application uses an internet-facing Application Load Balancer as the public entry point. The ALB forwards traffic to the healthy ECS Fargate tasks running in private subnets across two Availability Zones.
+
+The ECS tasks do not have public IP addresses and accept application traffic only from the Application Load Balancer security group.
 
 Supporting AWS services:
 
@@ -30,7 +94,6 @@ Supporting AWS services:
 
 The ECS tasks were deployed across two Availability Zones for availability.
 
----
 
 ## 3. AWS Services Used
 
